@@ -1,13 +1,17 @@
 import express from 'express';
 import { bookSeatController } from './booking.controller.js';
+import { getSeatStatus } from './booking.model.js';
 
-// Create a new Express router instance to define routes related to booking operations.
 const router = express.Router();
 
-// Define a POST route for booking a seat. The route includes a dynamic parameter ":seatId" which represents 
-// the ID of the seat to be booked.
 router.post('/book/:seatId', bookSeatController);
 
-// Export the router instance as the default export of this module, allowing it to be imported and used 
-// in other parts of the application,
+router.get('/seats', async (req, res) => {
+    const seats = {};
+    for (let i = 1; i <= 5; i++) {
+        seats[i] = await getSeatStatus(i.toString());
+    }
+    res.json(seats);
+});
+
 export default router;
