@@ -168,7 +168,7 @@
         const messageDiv = document.getElementById('message');
 
         async function loadSeats() {
-            seatsContainer.innerHTML = '<div class="seat loading"><div class="seat-number">Loading...</div></div>'.repeat(5);
+            seatsContainer.innerHTML = '<div class="seat loading"><div class="seat-number">Loading...</div></div>'.repeat(20);
             try {
                 const response = await fetch('/api/seats');
                 const seats = await response.json();

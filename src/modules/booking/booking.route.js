@@ -8,7 +8,7 @@ router.post('/book/:seatId', bookSeatController);
 
 router.get('/seats', async (req, res) => {
     const seats = {};
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 20; i++) {
         seats[i] = await getSeatStatus(i.toString());
     }
     res.json(seats);

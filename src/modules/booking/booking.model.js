@@ -8,7 +8,7 @@ const seatSchema = new mongoose.Schema({
 const Seat = mongoose.model('Seat', seatSchema);
 
 const initializeSeats = async () => {
-    const seats = ['1', '2', '3', '4', '5'];
+    const seats = Array.from({ length: 20 }, (_, i) => (i + 1).toString());
     for (const id of seats) {
         await Seat.findOneAndUpdate(
             { id },
