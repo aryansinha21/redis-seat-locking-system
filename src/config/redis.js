@@ -1,28 +1,29 @@
-import { createClient } from 'redis';
+import { Redis } from '@upstash/redis';
 
 let redisClient = null;
 let isConnected = false;
 
 const createRedisClient = () => {
     try {
-        const client = createClient({
-            url: process.env.REDIS_URL || 'redis://localhost:6379',
-            socket: { reconnectStrategy: (retries) => Math.min(retries * 50, 500) }
+        const url = process.env.UPSTASH_REDIS_REST_URL;
+        const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+        if (!url || !token) {
+            console.warn('Upstash Redis credentials not provided, Redis will be unavailable');
+            return null;
+        }
+
+        const client = new Redis({
+            url: url,
+            token: token,
         });
 
-        client.on('error', (err) => {
-            console.warn('Redis connection failed:', err.message);
-            isConnected = false;
-        });
-
-        client.on('connect', () => {
-            console.log('✅ Redis Connected');
-            isConnected = true;
-        });
-
+        console.log('✅ Upstash Redis client created');
+        isConnected = true;
         return client;
     } catch (error) {
-        console.warn('Failed to create Redis client:', error.message);
+        console.warn('Failed to create Upstash Redis client:', error.message);
+        isConnected = false;
         return null;
     }
 };
@@ -30,10 +31,7 @@ const createRedisClient = () => {
 const connectRedis = async () => {
     try {
         if (!redisClient) redisClient = createRedisClient();
-        if (redisClient) {
-            await redisClient.connect();
-            isConnected = true;
-        }
+        // Upstash is always connected via REST
     } catch (error) {
         console.warn('Redis optional:', error.message);
         isConnected = false;
