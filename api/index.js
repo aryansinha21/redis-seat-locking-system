@@ -4,11 +4,7 @@ import { connectRedis } from '../src/config/redis.js';
 import { connectMongo } from '../src/config/mongo.js';
 import { initializeSeats } from '../src/modules/booking/booking.model.js';
 
-let initialized = false;
-
-const initializeApp = async () => {
-    if (initialized) return;
-
+(async () => {
     console.log('🚀 Initializing server...');
 
     try {
@@ -24,11 +20,6 @@ const initializeApp = async () => {
     } catch (error) {
         console.error('❌ MongoDB failed:', error.message);
     }
+})();
 
-    initialized = true;
-};
-
-export default async (req, res) => {
-    await initializeApp();
-    return app(req, res);
-};
+export default app;
