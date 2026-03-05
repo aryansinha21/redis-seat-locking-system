@@ -7,19 +7,20 @@ import { initializeSeats } from './src/modules/booking/booking.model.js';
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
+    console.log('🚀 Initializing server...');
+    
     try {
         await connectRedis();
     } catch (error) {
-        console.error('Failed to connect to Redis:', error.message);
-        console.log('Starting server without Redis...');
+        console.warn('⚠️  Redis connection failed (optional):', error.message);
     }
 
     try {
         await connectMongo();
         await initializeSeats();
+        console.log('✅ MongoDB initialized');
     } catch (error) {
-        console.error('Failed to connect to MongoDB:', error.message);
-        console.log('Starting server without MongoDB...');
+        console.error('❌ MongoDB failed:', error.message);
     }
 
     app.listen(PORT, () => {
@@ -27,4 +28,9 @@ const startServer = async () => {
     });
 };
 
-startServer();
+startServer().catch((error) => {
+    console.error('Server startup error:', error);
+    process.exit(1);
+});
+
+export default app;

@@ -14,4 +14,15 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/api', bookingRoutes);
 
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    res.status(500).json({
+        message: "An unexpected error occurred. Please try again."
+    });
+});
+
 export default app;
