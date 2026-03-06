@@ -6,34 +6,31 @@ import { initializeSeats } from '../src/modules/booking/booking.model.js';
 
 let initialized = false;
 
-const initializeApp = async () => {
-    if (initialized) return;
-    initialized = true;
+async function init() {
+  if (initialized) return;
 
-    console.log('🚀 Initializing serverless app...');
+  console.log("🚀 Initializing serverless app...");
 
-    try {
-        await connectRedis();
-        console.log('✅ Redis configured (Upstash)');
-    } catch (error) {
-        console.warn('⚠️  Redis connection failed (optional):', error.message);
-    }
+  try {
+    await connectRedis();
+    console.log("✅ Redis configured");
+  } catch (e) {
+    console.warn("Redis optional:", e.message);
+  }
 
-    try {
-        await connectMongo();
-        await initializeSeats();
-        console.log('✅ MongoDB initialized');
-    } catch (error) {
-        console.error('❌ MongoDB failed:', error.message);
-    }
-};
+  await connectMongo();
+  await initializeSeats();
 
-// Initialize on first request
-app.use((req, res, next) => {
-    initializeApp().then(() => next()).catch((error) => {
-        console.error('Initialization error:', error);
-        res.status(500).json({ error: 'Initialization failed' });
-    });
-});
+  initialized = true;
+  console.log("✅ App initialized");
+}
 
-export default app;
+export default async function handler(req, res) {
+  try {
+    await init();
+    return app(req, res);
+  } catch (error) {
+    console.error("Initialization error:", error);
+    res.status(500).json({ error: "Server initialization failed" });
+  }
+}
