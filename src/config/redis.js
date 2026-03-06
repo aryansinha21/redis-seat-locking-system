@@ -9,7 +9,7 @@ const createRedisClient = () => {
         const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
         if (!url || !token) {
-            console.warn('Upstash Redis credentials not provided, Redis will be unavailable');
+            console.warn('⚠️  Upstash Redis credentials not provided. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN');
             return null;
         }
 
@@ -18,11 +18,11 @@ const createRedisClient = () => {
             token: token,
         });
 
-        console.log('✅ Upstash Redis client created');
+        console.log('✅ Upstash Redis client initialized');
         isConnected = true;
         return client;
     } catch (error) {
-        console.warn('Failed to create Upstash Redis client:', error.message);
+        console.warn('⚠️  Failed to create Upstash Redis client:', error.message);
         isConnected = false;
         return null;
     }
@@ -30,10 +30,21 @@ const createRedisClient = () => {
 
 const connectRedis = async () => {
     try {
-        if (!redisClient) redisClient = createRedisClient();
-        // Upstash is always connected via REST
+        if (!redisClient) {
+            redisClient = createRedisClient();
+        }
+        // Upstash Redis REST API is always available (no persistent connection needed)
+        if (redisClient) {
+            // Test connection with a simple ping
+            try {
+                await redisClient.ping();
+                console.log('✅ Upstash Redis connection verified');
+            } catch (e) {
+                console.warn('⚠️  Upstash Redis ping failed:', e.message);
+            }
+        }
     } catch (error) {
-        console.warn('Redis optional:', error.message);
+        console.warn('⚠️  Redis optional:', error.message);
         isConnected = false;
     }
 };
