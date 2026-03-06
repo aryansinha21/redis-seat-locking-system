@@ -1,36 +1,18 @@
 import 'dotenv/config';
 import app from './src/app.js';
-import { connectRedis } from './src/config/redis.js';
-import { connectMongo } from './src/config/mongo.js';
-import { initializeSeats } from './src/modules/booking/booking.model.js';
 
-const PORT = process.env.PORT || 3000;
+// On Vercel (serverless) we'll export the app and let the platform handle
+// listening. In local development we still want to start a server.
+if (!process.env.VERCEL) {
+    import('./src/config/redis.js').then(({ connectRedis }) => connectRedis())
+        .catch((e) => console.warn('Redis init failed', e.message));
+    import('./src/config/mongo.js').then(({ connectMongo }) => connectMongo())
+        .catch((e) => console.error('Mongo init failed', e.message));
 
-const startServer = async () => {
-    console.log('🚀 Initializing server...');
-    
-    try {
-        await connectRedis();
-    } catch (error) {
-        console.warn('⚠️  Redis connection failed (optional):', error.message);
-    }
-
-    try {
-        await connectMongo();
-        await initializeSeats();
-        console.log('✅ MongoDB initialized');
-    } catch (error) {
-        console.error('❌ MongoDB failed:', error.message);
-    }
-
+    const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
     });
-};
-
-startServer().catch((error) => {
-    console.error('Server startup error:', error);
-    process.exit(1);
-});
+}
 
 export default app;
